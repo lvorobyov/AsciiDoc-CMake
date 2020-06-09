@@ -26,10 +26,10 @@ function(add_tex _target)
     set(TEX_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${BASENAME}.pdf)
     set(TEX_PREAMBLE ${CMAKE_CURRENT_LIST_DIR}/preamble.tex)
     set(TEX_FORMAT ${CMAKE_CURRENT_BINARY_DIR}/preamble.fmt)
-    set(TEX_FLAGS -interaction=nonstopmode -shell-escape -job-name="${_target}")
+    set(TEX_FLAGS -interaction=nonstopmode -shell-escape -jobname="${_target}")
     add_custom_command(OUTPUT ${TEX_FORMAT}
             COMMAND pdftex -shell-escape -ini -output-directory=${CMAKE_CURRENT_BINARY_DIR}
-            -job-name="preamble" "&pdflatex ${TEX_PREAMBLE}\\dump" ${TEX_PREAMBLE}
+            -jobname="preamble" "&pdflatex ${TEX_PREAMBLE}\\dump" ${TEX_PREAMBLE}
             DEPENDS ${TEX_PREAMBLE} WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} VERBATIM)
     set(AUX_FILE ${CMAKE_CURRENT_BINARY_DIR}/${_target}.aux)
     set(LOG_FILE ${CMAKE_CURRENT_BINARY_DIR}/${_target}.log)
