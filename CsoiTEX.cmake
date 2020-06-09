@@ -3,9 +3,10 @@ include(CsoiDoc)
 function(add_tex _target)
     get_filename_component(BASENAME ${ARGV1} NAME_WE)
     set(SOURCES ${ARGN})
-    list(FILTER SOURCES INCLUDE REGEX ".+\\.[am]d$")
-    list(TRANSFORM ARGN REPLACE "\\.[am]d$" ".tex")
-    string(REGEX MATCH "\\.[am]d$" _match ${ARGV1})
+	set(ADOC_EXT "\\.[am]d(oc)?$")
+    list(FILTER SOURCES INCLUDE REGEX ${ADOC_EXT})
+    list(TRANSFORM ARGN REPLACE ${ADOC_EXT} ".tex")
+    string(REGEX MATCH ${ADOC_EXT}  _match ${ARGV1})
 	if (DEFINED _match)
 		set(_main TRUE)
         set(BIBFILES ${ARGN})
@@ -49,7 +50,7 @@ function(add_tex _target)
         add_custom_command(OUTPUT ${BIB_OUTPUT} DEPENDS ${TEX_FORMAT} ${ARGN}
                 COMMAND ${PDFLATEX_COMPILER} ${TEX_FLAGS}
                 -output-dir=${CMAKE_CURRENT_BINARY_DIR}
-                "&${CMAKE_CURRENT_BINARY_DIR}/preamble ${TEX_MAIN}"
+                "&preamble ${TEX_MAIN}"
                 COMMAND perl -i.bak -pe "s/(\\\\bibdata\\{)(\\w+\\})/$1${BIB_RELATIVE}\\/$2/" ${AUX_FILE} &&
                 bibtex8 -B -c utf8cyrillic.csf ${AUX_FILE}
                 COMMAND del ${BASENAME}.pdf
