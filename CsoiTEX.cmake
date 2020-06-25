@@ -47,14 +47,16 @@ function(add_tex _target)
     if (BIBCOUNT GREATER 0)
         set(BIB_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_target}.bbl)
         string(REGEX REPLACE "(\\/)" "\\\\\\1" BIB_RELATIVE ${CMAKE_CURRENT_LIST_DIR})
-        add_custom_command(OUTPUT ${BIB_OUTPUT} DEPENDS ${TEX_FORMAT} ${ARGN}
+        add_custom_command(OUTPUT ${AUX_FILE} DEPENDS ${TEX_FORMAT} ${ARGN}
                 COMMAND ${PDFLATEX_COMPILER} ${TEX_FLAGS}
                 -output-dir=${CMAKE_CURRENT_BINARY_DIR} -draftmode
                 "&preamble ${TEX_MAIN}"
-                COMMAND perl -i.bak -pe "s/(\\\\bibdata\\{)(\\w+\\})/$1${BIB_RELATIVE}\\/$2/" ${AUX_FILE} &&
-                bibtex8 -B -c utf8cyrillic.csf ${AUX_FILE}
-                BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/${_target}.blg
                 WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} VERBATIM)
+        add_custom_command(OUTPUT ${BIB_OUTPUT} DEPENDS ${AUX_FILE}
+                COMMAND perl -i.bak -pe "s/(\\\\bibdata\\{)(\\w+\\})/$1${BIB_RELATIVE}\\/$2/" ${_target}.aux &&
+                bibtex8 -B -c utf8cyrillic.csf ${_target}
+                BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/${_target}.blg
+                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} VERBATIM)
     endif ()
     add_custom_target(${_target} DEPENDS ${BIB_OUTPUT} ${TEX_OUTPUT} SOURCES ${ARGN})
 endfunction()
