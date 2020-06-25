@@ -49,12 +49,10 @@ function(add_tex _target)
         string(REGEX REPLACE "(\\/)" "\\\\\\1" BIB_RELATIVE ${CMAKE_CURRENT_LIST_DIR})
         add_custom_command(OUTPUT ${BIB_OUTPUT} DEPENDS ${TEX_FORMAT} ${ARGN}
                 COMMAND ${PDFLATEX_COMPILER} ${TEX_FLAGS}
-                -output-dir=${CMAKE_CURRENT_BINARY_DIR}
+                -output-dir=${CMAKE_CURRENT_BINARY_DIR} -draftmode
                 "&preamble ${TEX_MAIN}"
                 COMMAND perl -i.bak -pe "s/(\\\\bibdata\\{)(\\w+\\})/$1${BIB_RELATIVE}\\/$2/" ${AUX_FILE} &&
-                bibtex8 -B -c utf8cyrillic.csf ${AUX_FILE} &&
-				cp ${_target}.blg ${CMAKE_CURRENT_BINARY_DIR}/
-                COMMAND del ${BASENAME}.pdf
+                bibtex8 -B -c utf8cyrillic.csf ${AUX_FILE}
                 BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/${_target}.blg
                 WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} VERBATIM)
     endif ()
