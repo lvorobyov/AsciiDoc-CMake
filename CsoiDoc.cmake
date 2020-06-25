@@ -8,7 +8,7 @@ function(add_doc _source)
 				   if ($pre) {\
 					 if ($pre == 1 and s/^=\\s+(.+)$/\\\\title{\\1}/) { \
 					   $pre = 2; \
-					 } elsif ($pre == 2 and s/^(\\S+)$/\\\\author{\\1}/) { \
+					 } elsif ($pre == 2 and s/^(.+)$/\\\\author{\\1}/) { \
 					   $pre = 3; \
 					 } else { \
 				       print qq(\\\\begin{document}\\n); \
