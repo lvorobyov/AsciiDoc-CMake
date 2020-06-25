@@ -38,7 +38,7 @@ function(add_tex _target)
             COMMAND ${PDFLATEX_COMPILER} ${TEX_FLAGS}
             -output-dir=${CMAKE_CURRENT_BINARY_DIR}
             "&preamble ${TEX_MAIN}"
-            COMMAND find "undefined references" < ${LOG_FILE} && 
+            COMMAND grep -q "undefined references" ${LOG_FILE} && 
             ${PDFLATEX_COMPILER} ${TEX_FLAGS}
             -output-dir=${CMAKE_CURRENT_BINARY_DIR}
             "&preamble ${TEX_MAIN}" || set ERRORLEVEL=0
