@@ -53,7 +53,7 @@ function(add_tex _target)
                 "&preamble ${TEX_MAIN}"
                 COMMAND perl -i.bak -pe "s/(\\\\bibdata\\{)(\\w+\\})/$1${BIB_RELATIVE}\\/$2/" ${AUX_FILE} &&
                 bibtex8 -B -c utf8cyrillic.csf ${AUX_FILE}
-                BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/${_target}.blg
+                BYPRODUCTS ${CMAKE_CURRENT_LIST_DIR}/${_target}.blg
                 WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} VERBATIM)
     endif ()
     add_custom_target(${_target} DEPENDS ${BIB_OUTPUT} ${TEX_OUTPUT} SOURCES ${ARGN})
