@@ -3,9 +3,10 @@ include(CsoiDoc)
 function(add_tex _target)
     get_filename_component(BASENAME ${ARGV1} NAME_WE)
     set(SOURCES ${ARGN})
-    list(FILTER SOURCES INCLUDE REGEX ".+\\.[am]d$")
-    list(TRANSFORM ARGN REPLACE "\\.[am]d$" ".tex")
-    string(REGEX MATCH "\\.[am]d$" _match ${ARGV1})
+	set(ADOC_EXT "\\.[am]d(oc)?$")
+    list(FILTER SOURCES INCLUDE REGEX ${ADOC_EXT})
+    list(TRANSFORM ARGN REPLACE ${ADOC_EXT} ".tex")
+    string(REGEX MATCH ${ADOC_EXT}  _match ${ARGV1})
 	if (DEFINED _match)
 		set(_main TRUE)
         set(BIBFILES ${ARGN})
@@ -28,20 +29,18 @@ function(add_tex _target)
     set(TEX_FORMAT ${CMAKE_CURRENT_BINARY_DIR}/preamble.fmt)
     set(TEX_FLAGS -interaction=nonstopmode -shell-escape -jobname="${_target}")
     add_custom_command(OUTPUT ${TEX_FORMAT}
-            COMMAND pdftex -shell-escape -ini -output-directory=${CMAKE_CURRENT_BINARY_DIR}
+            COMMAND pdftex -shell-escape -ini -output-dir=${CMAKE_CURRENT_BINARY_DIR}
             -jobname="preamble" "&pdflatex ${TEX_PREAMBLE}\\dump" ${TEX_PREAMBLE}
             DEPENDS ${TEX_PREAMBLE} WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} VERBATIM)
     set(AUX_FILE ${CMAKE_CURRENT_BINARY_DIR}/${_target}.aux)
     set(LOG_FILE ${CMAKE_CURRENT_BINARY_DIR}/${_target}.log)
     add_custom_command(OUTPUT ${TEX_OUTPUT}
             COMMAND ${PDFLATEX_COMPILER} ${TEX_FLAGS}
-            -aux-directory=${CMAKE_CURRENT_BINARY_DIR}
-            -output-directory=${CMAKE_CURRENT_BINARY_DIR}
+            -output-dir=${CMAKE_CURRENT_BINARY_DIR}
             "&preamble ${TEX_MAIN}"
             COMMAND find "undefined references" < ${LOG_FILE} && 
             ${PDFLATEX_COMPILER} ${TEX_FLAGS}
-            -aux-directory=${CMAKE_CURRENT_BINARY_DIR}
-            -output-directory=${CMAKE_CURRENT_BINARY_DIR}
+            -output-dir=${CMAKE_CURRENT_BINARY_DIR}
             "&preamble ${TEX_MAIN}" || set ERRORLEVEL=0
             DEPENDS ${TEX_FORMAT} ${ARGN} BYPRODUCTS ${AUX_FILE}
             WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} VERBATIM)
@@ -50,13 +49,13 @@ function(add_tex _target)
         string(REGEX REPLACE "(\\/)" "\\\\\\1" BIB_RELATIVE ${CMAKE_CURRENT_LIST_DIR})
         add_custom_command(OUTPUT ${BIB_OUTPUT} DEPENDS ${TEX_FORMAT} ${ARGN}
                 COMMAND ${PDFLATEX_COMPILER} ${TEX_FLAGS}
-                -include-directory=${CMAKE_CURRENT_LIST_DIR}
-                "&preamble ${CMAKE_CURRENT_LIST_DIR}/${TEX_MAIN}"
-                COMMAND perl -i.bak -pe "s/(\\\\bibdata\\{)(\\w+\\})/$1${BIB_RELATIVE}\\/$2/" ${_target}.aux &&
-                bibtex8 -B -c utf8cyrillic.csf ${_target}
+                -output-dir=${CMAKE_CURRENT_BINARY_DIR}
+                "&preamble ${TEX_MAIN}"
+                COMMAND perl -i.bak -pe "s/(\\\\bibdata\\{)(\\w+\\})/$1${BIB_RELATIVE}\\/$2/" ${AUX_FILE} &&
+                bibtex8 -B -c utf8cyrillic.csf ${AUX_FILE}
                 COMMAND del ${BASENAME}.pdf
                 BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/${_target}.blg
-                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} VERBATIM)
+                WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} VERBATIM)
     endif ()
     add_custom_target(${_target} DEPENDS ${BIB_OUTPUT} ${TEX_OUTPUT} SOURCES ${ARGN})
 endfunction()
