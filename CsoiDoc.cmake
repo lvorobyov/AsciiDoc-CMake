@@ -4,11 +4,22 @@ function(add_doc _source)
     set(_main "")
     if (${ARGC} GREATER 1 AND (${ARGV1} OR ${ARGV1} MATCHES "\\.bib$"))
         # Check is bibtex file presented
-        set(_main "BEGIN{print qq(\\\\begin{document}\\n);} \
+        set(_main "BEGIN{$pre = 1;} \
+				   if ($pre) {\
+					 if ($pre == 1 and s/^=\\s+(.+)$/\\\\title{\\1}/) { \
+					   $pre = 2; \
+					 } elsif ($pre == 2 and s/^(\\S+)$/\\\\author{\\1}/) { \
+					   $pre = 3; \
+					 } else { \
+				       print qq(\\\\begin{document}\\n); \
+					   print qq(\\\\maketitle\\n) if ($pre > 1); \
+					   $pre = 0; \
+					 } \
+				   } \
                    END{print qq(\\n\\\\end{document}\\n);}")
     endif()
     add_custom_command(OUTPUT ${TEX_FILE}
-            COMMAND perl -MAsciiDoc -C -lpe "${_main} chomp; to_latex($_, qq(\\n));" < ${_source} > ${TEX_FILE}
+            COMMAND perl -MAsciiDoc -C -lpe "chomp; ${_main} to_latex($_, qq(\\n));" < ${_source} > ${TEX_FILE}
             WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
             DEPENDS ${_source} VERBATIM)
 endfunction()
