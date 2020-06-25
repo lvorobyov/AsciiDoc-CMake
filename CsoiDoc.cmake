@@ -10,6 +10,7 @@ function(add_doc _source)
 					   $pre = 2; \
 					 } elsif ($pre == 2 and s/^(.+)$/\\\\author{\\1}/) { \
 					   $pre = 3; \
+					 } elsif (s/^:(\\w+): (.+)/\\\\\\1{\\2}/) { \
 					 } else { \
 				       print qq(\\\\begin{document}\\n); \
 					   print qq(\\\\maketitle\\n) if ($pre > 1); \
