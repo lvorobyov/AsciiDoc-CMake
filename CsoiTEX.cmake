@@ -52,7 +52,8 @@ function(add_tex _target)
                 -output-dir=${CMAKE_CURRENT_BINARY_DIR}
                 "&preamble ${TEX_MAIN}"
                 COMMAND perl -i.bak -pe "s/(\\\\bibdata\\{)(\\w+\\})/$1${BIB_RELATIVE}\\/$2/" ${AUX_FILE} &&
-                bibtex8 -B -c utf8cyrillic.csf ${AUX_FILE}
+                bibtex8 -B -c utf8cyrillic.csf ${AUX_FILE} &&
+				cp ${_target}.blg ${CMAKE_CURRENT_BINARY_DIR}/
                 COMMAND del ${BASENAME}.pdf
                 BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/${_target}.blg
                 WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} VERBATIM)
